@@ -1,6 +1,33 @@
 ---
-# tasks file for Apache Flink
+# tasks file for roles/flink
 - name: Update Repositories
   become: yes
   apt:
     update_cache: yes
+
+- name: Create Flink  automation directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - '/root/.flink_automate'
+
+- name: Upload flink_init.sh File
+  become: yes
+  copy:
+    src: flink_init.sh
+    dest: /root/.flink_automate/flink_init.sh
+
+- name: Change permissions on flink_init.sh
+  become: yes
+  file:
+    path: /root/.flink_automate/flink_init.sh
+    mode: "u+rwx"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Run Flink Initialization script
+  become: yes
+  command: /root/.flink_automate/flink_init.sh
+  args:
+    executable: /bin/bash
